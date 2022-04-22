@@ -57,6 +57,7 @@ def main(hparams):
     feature_cols.append("lon")
     feature_cols.extend(country_cols)
 
+    preds = []
     for fold in range(fold_size):
         trn_idx = train[train["fold"] != fold].index
         val_idx = train[train["fold"] == fold].index
@@ -71,6 +72,7 @@ def main(hparams):
 
         X_train = train_folds[feature_cols].to_numpy()
         X_valid = valid_folds[feature_cols].to_numpy()
+        X_test = test[feature_cols].to_numpy()
         tabnet_params = dict(
             n_d=8,
             n_a=8,
@@ -103,7 +105,11 @@ def main(hparams):
             ],
             eval_metric=["rmse"],
         )
-        clf.save_model(os.path.join(output_dir, f"tabnet-{fold:02d}"))
+        tmp_preds: np.ndarray = clf.predict(X_test)
+        preds.append(ss.inverse_transform(tmp_preds.reshape((-1, 1))))
+    preds = np.mean(preds, axis=0)
+    sub["judgement"] = preds
+    sub.to_csv(os.path.join(output_dir, "submission.csv"), index=False, header=False)
 
 
 if __name__ == "__main__":
