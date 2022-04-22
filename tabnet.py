@@ -1,6 +1,7 @@
 import os
 from argparse import ArgumentParser
 
+import numpy as np
 import pandas as pd
 import torch
 from pytorch_tabnet.tab_model import TabNetRegressor
@@ -16,8 +17,10 @@ def main(hparams):
     fold_size = hparams.fold
     seed = hparams.seed
     train = pd.read_csv(os.path.join(data_dir, "train.csv"))
-    train = get_train_data(train, n_split=fold_size, seed=seed)
     test = pd.read_csv(os.path.join(data_dir, "test.csv"))
+    sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
+    sub.columns = ["id", "judgement"]
+    train = get_train_data(train, n_split=fold_size, seed=seed, fold_method="group_kfold")
 
     # date
     train = preprocess_date(train)
@@ -29,13 +32,21 @@ def main(hparams):
 
     variety = ["min", "mid", "max", "var"]
     cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
-    mms = preprocessing.MinMaxScaler()
     columns = [col + "_cnt" for col in cols]
     columns.append("date")
-    train[columns] = mms.fit_transform(train[columns])
+
+    mms = preprocessing.MinMaxScaler()
+    mms.fit(pd.concat([train, test])[columns])
+    train[columns] = mms.transform(train[columns])
     test[columns] = mms.transform(test[columns])
-    sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
-    sub.columns = ["id", "judgement"]
+
+    variety = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
+    metrics_list = ["min", "mid", "max", "var"]
+
+    feature_cols = [v + "_" + metrics for v in variety for metrics in metrics_list]
+    feature_cols.append("date")
+    feature_cols.append("lat")
+    feature_cols.append("lon")
 
     for fold in range(fold_size):
         trn_idx = train[train["fold"] != fold].index
@@ -46,15 +57,11 @@ def main(hparams):
         valid_folds = train.loc[val_idx].reset_index(drop=True)
         valid_folds = valid_folds.drop("fold", axis=1)
 
-        variety = ["cnt", "min", "mid", "max", "var"]
-        cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
-        features = [col + "_" + v for col in cols for v in variety]
-        features.append("date")
-        features.append("lat")
-        features.append("lon")
         y_train = train_folds["pm25_mid"].to_numpy().reshape((-1, 1))
         y_valid = valid_folds["pm25_mid"].to_numpy().reshape((-1, 1))
 
+        X_train = train_folds[feature_cols].to_numpy()
+        X_valid = valid_folds[feature_cols].to_numpy()
         tabnet_params = dict(
             n_d=8,
             n_a=8,
@@ -78,11 +85,11 @@ def main(hparams):
 
         clf = TabNetRegressor(**tabnet_params)
         clf.fit(
-            train_folds[features].to_numpy(),
+            X_train,
             y_train,
             eval_set=[
                 (
-                    valid_folds[features].to_numpy(),
+                    X_valid,
                     y_valid,
                 )
             ],
