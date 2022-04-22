@@ -30,8 +30,14 @@ def main(hparams):
     train = preprocess_coordinate(train)
     test = preprocess_coordinate(test)
 
+    # City and Country
+    countries = train["Country"].unique()
+    train = pd.get_dummies(train, columns=["Country"])
+    test = pd.get_dummies(test, columns=["Country"])
+
     variety = ["min", "mid", "max", "var"]
     cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
+    country_cols = [f"Country_{country}" for country in countries]
     columns = [col + "_cnt" for col in cols]
     columns.append("date")
 
@@ -47,6 +53,7 @@ def main(hparams):
     feature_cols.append("date")
     feature_cols.append("lat")
     feature_cols.append("lon")
+    feature_cols.extend(country_cols)
 
     for fold in range(fold_size):
         trn_idx = train[train["fold"] != fold].index
