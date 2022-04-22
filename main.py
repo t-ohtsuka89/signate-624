@@ -91,6 +91,7 @@ def main(hparams):
     cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
     ss = preprocessing.StandardScaler()
     mms = preprocessing.MinMaxScaler()
+    train[["pm25_mid"]] = ss.fit_transform(train[["pm25_mid"]])
     columns = [col + "_cnt" for col in cols]
     columns.append("date")
     mms.fit(np.concatenate([train, test])[columns])
