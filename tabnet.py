@@ -74,16 +74,16 @@ def main(hparams):
         X_valid = valid_folds[feature_cols].to_numpy()
         X_test = test[feature_cols].to_numpy()
         tabnet_params = dict(
-            n_d=8,
-            n_a=8,
+            n_d=32,
+            n_a=32,
             n_steps=3,
             gamma=1.3,
             n_independent=2,
-            n_shared=2,
+            n_shared=3,
             seed=seed,
             lambda_sparse=1e-3,
             optimizer_fn=torch.optim.RAdam,
-            optimizer_params=dict(lr=2e-2),
+            optimizer_params=dict(lr=1e-3),
             mask_type="entmax",
             scheduler_params=dict(
                 mode="min",
@@ -104,6 +104,7 @@ def main(hparams):
                 )
             ],
             eval_metric=["rmse"],
+            patience=20,
         )
         tmp_preds: np.ndarray = clf.predict(X_test)
         preds.append(ss.inverse_transform(tmp_preds.reshape((-1, 1))))
@@ -115,8 +116,8 @@ def main(hparams):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--data_dir", default="data", type=str)
-    parser.add_argument("--output_dir", default="outputs", type=str)
-    parser.add_argument("--fold", default=5, type=int)
-    parser.add_argument("--seed", default=472, type=int)
+    parser.add_argument("--output_dir", default=os.path.join("outputs", "tabnet"), type=str)
+    parser.add_argument("--fold", default=10, type=int)
+    parser.add_argument("--seed", default=2022, type=int)
     args = parser.parse_args()
     main(args)
