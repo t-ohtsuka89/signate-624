@@ -95,7 +95,7 @@ def main(hparams):
     train[["pm25_mid"]] = ss.fit_transform(train[["pm25_mid"]])
     columns = [col + "_cnt" for col in cols]
     columns.append("date")
-    mms.fit(np.concatenate([train, test])[columns])
+    mms.fit(pd.concat([train, test])[columns])
     train[columns] = mms.transform(train[columns])
     test[columns] = mms.transform(test[columns])
     sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
