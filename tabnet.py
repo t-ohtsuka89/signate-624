@@ -42,7 +42,9 @@ def main(hparams):
     columns.append("date")
 
     mms = preprocessing.MinMaxScaler()
+    ss = preprocessing.StandardScaler()
     mms.fit(pd.concat([train, test])[columns])
+    train[["pm25_mid"]] = ss.fit_transform(train[["pm25_mid"]])
     train[columns] = mms.transform(train[columns])
     test[columns] = mms.transform(test[columns])
 
@@ -89,7 +91,6 @@ def main(hparams):
             ),
             verbose=10,
         )
-
         clf = TabNetRegressor(**tabnet_params)
         clf.fit(
             X_train,
