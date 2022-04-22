@@ -39,4 +39,4 @@ default=472, type=int
 
 ## References
 
-https://signate.jp/competitions/595
+https://signate.jp/competitions/624
