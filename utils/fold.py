@@ -8,7 +8,7 @@ from typing_extensions import Literal
 
 def get_train_data(
     train: pd.DataFrame,
-    n_split=5,
+    n_split: int = 5,
     seed=42,
     fold_method: Literal["kfold", "stratified_fold", "group_kfold"] = "kfold",
 ):
