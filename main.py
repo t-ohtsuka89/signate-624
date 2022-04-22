@@ -80,6 +80,7 @@ def main(hparams):
     epochs: int = hparams.epochs
     fold_size: int = hparams.fold
     seed: int = hparams.seed
+    os.makedirs(output_dir, exist_ok=True)
     train = pd.read_csv(os.path.join(data_dir, "train.csv"))
     train = get_train_data(train, n_split=fold_size, seed=seed, fold_method=hparams.fold_method)
     test = pd.read_csv(os.path.join(data_dir, "test.csv"))
