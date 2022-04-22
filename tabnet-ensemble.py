@@ -7,7 +7,7 @@ import torch
 from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn import preprocessing
 
-from tabnet import preprocess_date
+from utils.preprocess import preprocess_date
 
 
 def preprocess_mms(X, mms: preprocessing.MinMaxScaler):

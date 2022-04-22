@@ -1,39 +1,18 @@
 import os
-import time
 from argparse import ArgumentParser
 
-import numpy as np
 import pandas as pd
 import torch
 from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn import preprocessing
-from sklearn.model_selection import GroupKFold, KFold, StratifiedKFold
-from torch.utils.data import DataLoader
 
 from utils.fold import get_train_data
-
-
-def to_unixtime(time_str: str) -> int:
-    date_time = time.strptime(time_str, "%Y%M%d")
-    unix_time = int(time.mktime(date_time))
-    return unix_time
-
-
-def preprocess_date(df: pd.DataFrame):
-    df["year"] = df["year"].apply(lambda x: str(x).zfill(4))
-    df["month"] = df["month"].apply(lambda x: str(x).zfill(2))
-    df["day"] = df["day"].apply(lambda x: str(x).zfill(2))
-    df["date"] = df["year"] + df["month"] + df["day"]
-    df["date"] = df["date"].apply(to_unixtime)
-    df.drop(columns=["year", "month", "day"], inplace=True)
-    return df
+from utils.preprocess import preprocess_date
 
 
 def main(hparams):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_dir = hparams.data_dir
     output_dir = hparams.output_dir
-    epochs = hparams.epochs
     fold_size = hparams.fold
     seed = hparams.seed
     train = pd.read_csv(os.path.join(data_dir, "train.csv"))
@@ -46,7 +25,6 @@ def main(hparams):
 
     variety = ["min", "mid", "max", "var"]
     cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
-    ss = preprocessing.StandardScaler()
     mms = preprocessing.MinMaxScaler()
     columns = [col + "_cnt" for col in cols]
     columns.append("date")
@@ -114,7 +92,6 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", default="data", type=str)
     parser.add_argument("--output_dir", default="outputs", type=str)
     parser.add_argument("--fold", default=5, type=int)
-    parser.add_argument("--epochs", default=10, type=int)
     parser.add_argument("--seed", default=472, type=int)
     args = parser.parse_args()
     main(args)
