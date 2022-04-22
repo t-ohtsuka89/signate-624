@@ -75,11 +75,11 @@ def train_model(
 
 def main(hparams):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_dir = hparams.data_dir
-    output_dir = hparams.output_dir
-    epochs = hparams.epochs
-    fold_size = hparams.fold
-    seed = hparams.seed
+    data_dir: str = hparams.data_dir
+    output_dir: str = hparams.output_dir
+    epochs: int = hparams.epochs
+    fold_size: int = hparams.fold
+    seed: int = hparams.seed
     train = pd.read_csv(os.path.join(data_dir, "train.csv"))
     train = get_train_data(train, n_split=fold_size, seed=seed, fold_method=hparams.fold_method)
     test = pd.read_csv(os.path.join(data_dir, "test.csv"))
