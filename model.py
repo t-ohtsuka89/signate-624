@@ -1,8 +1,6 @@
 import pytorch_lightning as pl
 import torch
 import torchmetrics
-from adabelief_pytorch import AdaBelief
-from ranger_adabelief import RangerAdaBelief
 from torch import Tensor, nn
 
 
@@ -161,14 +159,9 @@ class LightningModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.RAdam(self.parameters(), lr=2e-5)
-        # optimizer = RangerAdaBelief(self.parameters(), lr=1e-3, eps=1e-12, betas=(0.9,0.999))
-        # optimizer = AdaBelief(
-        #     self.parameters(), lr=1e-3, eps=1e-16, betas=(0.9, 0.999), weight_decouple=True, rectify=False
-        # )
         return optimizer
 
     def create_criterion(self):
-        # criterion = nn.HuberLoss()
         criterion = RMSELoss()
         return criterion
 
