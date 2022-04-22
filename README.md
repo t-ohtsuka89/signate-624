@@ -31,7 +31,7 @@ default="data", type=str
 
 ### output_dir
 
-default="outputs", type=str
+default="outputs/original", type=str
 
 ### seed
 

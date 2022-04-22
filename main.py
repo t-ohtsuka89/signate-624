@@ -134,7 +134,7 @@ def main(hparams):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--data_dir", default="data", type=str)
-    parser.add_argument("--output_dir", default="outputs", type=str)
+    parser.add_argument("--output_dir", default=os.path.join("outputs", "original"), type=str)
     parser.add_argument("--fold", default=5, type=int)
     parser.add_argument("--epochs", default=-1, type=int)
     parser.add_argument("--seed", default=472, type=int)
