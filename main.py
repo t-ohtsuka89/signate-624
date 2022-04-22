@@ -1,6 +1,8 @@
 import os
 from argparse import ArgumentParser
+from typing import Dict
 
+import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 import torch
@@ -9,6 +11,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from sklearn import preprocessing
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from dataset import BaseDataset
 from model import LightningModel
@@ -98,11 +101,34 @@ def main(hparams):
     sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
     sub.columns = ["id", "judgement"]
 
+    test_ds = BaseDataset(test, include_labels=False)
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=16,
+        shuffle=False,
+        pin_memory=True,
+    )
+    predictions = []
     for fold in range(fold_size):
         model = LightningModel()
         train_model(model, train, fold, output_dir=output_dir, epochs=epochs, device=device)
+        model.eval()
+        preds = []
+        for batch in tqdm(test_loader, total=len(test_loader)):
+            batch: Dict[str, torch.Tensor]
+            batch = {k: v.to(device, dtype=torch.float) for (k, v) in batch.items()}
 
-    # test_data = torch.tensor(test.values.astype(np.float32))
+            with torch.no_grad():
+                y_preds: torch.Tensor = model.forward(**batch)
+                y_preds = y_preds.float()
+            preds.append(y_preds.cpu().numpy())
+        preds = np.concatenate(preds)
+        predictions.append(preds)
+    predictions = np.mean(predictions, axis=0)
+    predictions = ss.inverse_transform(predictions.reshape(-1, 1))
+    sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
+    sub.columns = ["id", "judgement"]
+    pd.Series(predictions).to_csv(os.path.join(output_dir, "predictions.csv"), index=False)
 
 
 if __name__ == "__main__":
