@@ -23,7 +23,7 @@ default=5, type=int
 
 ### epochs
 
-default=10, type=int
+default=-1, type=int
 
 ### data_dir
 

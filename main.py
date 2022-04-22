@@ -129,7 +129,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", default="data", type=str)
     parser.add_argument("--output_dir", default="outputs", type=str)
     parser.add_argument("--fold", default=5, type=int)
-    parser.add_argument("--epochs", default=10, type=int)
+    parser.add_argument("--epochs", default=-1, type=int)
     parser.add_argument("--seed", default=472, type=int)
     parser.add_argument(
         "--fold_method", default="kfold", type=str, choices=["kfold", "stratified_fold", "group_kfold"]
