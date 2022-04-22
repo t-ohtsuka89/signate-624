@@ -88,15 +88,13 @@ def main(hparams):
     train = preprocess_date(train)
     test = preprocess_date(test)
 
-    variety = ["min", "mid", "max", "var"]
     cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
     ss = preprocessing.StandardScaler()
     mms = preprocessing.MinMaxScaler()
-    # columns = [col + "_" + v for col in cols for v in variety]
-    # train[columns] = ss.fit_transform(train[columns])
     columns = [col + "_cnt" for col in cols]
     columns.append("date")
-    train[columns] = mms.fit_transform(train[columns])
+    mms.fit(np.concatenate([train, test])[columns])
+    train[columns] = mms.transform(train[columns])
     test[columns] = mms.transform(test[columns])
     sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
     sub.columns = ["id", "judgement"]
