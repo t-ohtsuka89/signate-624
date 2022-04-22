@@ -7,7 +7,7 @@ from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn import preprocessing
 
 from utils.fold import get_train_data
-from utils.preprocess import preprocess_date
+from utils.preprocess import preprocess_coordinate, preprocess_date
 
 
 def main(hparams):
@@ -22,6 +22,10 @@ def main(hparams):
     # date
     train = preprocess_date(train)
     test = preprocess_date(test)
+
+    # coordinate
+    train = preprocess_coordinate(train)
+    test = preprocess_coordinate(test)
 
     variety = ["min", "mid", "max", "var"]
     cols = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]
