@@ -7,7 +7,6 @@ import torch
 from optuna.trial import Trial
 from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn import preprocessing
-from torch.nn.modules.loss import MSELoss
 
 from utils.fold import give_fold_index
 from utils.preprocess import preprocess_coordinate, preprocess_date
@@ -126,7 +125,7 @@ def Objective(trial: Trial):
 import pickle
 
 study = optuna.create_study(direction="minimize", study_name="TabNet optimization")
-study.optimize(Objective, timeout=6 * 60)  # 5 hours
+study.optimize(Objective, timeout=6 * 60)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 with open(os.path.join(OUTPUT_DIR, "params.pkl"), "wb") as f:
     pickle.dump(study.best_params, f)
