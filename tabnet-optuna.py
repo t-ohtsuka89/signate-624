@@ -9,7 +9,7 @@ from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn import preprocessing
 from torch.nn.modules.loss import MSELoss
 
-from utils.fold import get_train_data
+from utils.fold import give_fold_index
 from utils.preprocess import preprocess_coordinate, preprocess_date
 
 # const
@@ -50,7 +50,7 @@ train_df[columns] = mms.transform(train_df[columns])
 test_df[columns] = mms.transform(test_df[columns])
 
 # fold
-train_df = get_train_data(train_df, n_split=FOLD_SIZE, seed=SEED, fold_method="group_kfold")
+train_df = give_fold_index(train_df, n_split=FOLD_SIZE, seed=SEED, fold_method="group_kfold")
 
 # feature columns
 variety = ["co", "o3", "so2", "no2", "temperature", "humidity", "pressure", "ws", "dew"]

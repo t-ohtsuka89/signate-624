@@ -7,7 +7,7 @@ import torch
 from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn import preprocessing
 
-from utils.fold import get_train_data
+from utils.fold import give_fold_index
 from utils.preprocess import preprocess_coordinate, preprocess_date
 
 
@@ -20,7 +20,7 @@ def main(hparams):
     test = pd.read_csv(os.path.join(data_dir, "test.csv"))
     sub = pd.read_csv(os.path.join(data_dir, "submit_sample.csv"), header=None)
     sub.columns = ["id", "judgement"]
-    train = get_train_data(train, n_split=fold_size, seed=seed, fold_method="group_kfold")
+    train = give_fold_index(train, n_split=fold_size, seed=seed, fold_method="group_kfold")
 
     # date
     train = preprocess_date(train)
